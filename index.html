@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Фикс ошибки 153: корректная передача Referrer -->
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>AniTube Player — Смотреть онлайн</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-main: #0b0e14;
+      --bg-card: #151922;
+      --bg-card-hover: #1e2430;
+      --accent: #ff4a80;
+      --accent-hover: #ff2d6b;
+      --accent-cyan: #00d2ff;
+      --text-main: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #232a38;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #cinema-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 40;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    body.cinema-mode #cinema-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    header {
+      background: rgba(21, 25, 34, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .nav-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .logo {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      text-decoration: none;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo span {
+      background: linear-gradient(45deg, var(--accent), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      -webkit-text-fill-color: initial;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 24px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .container { grid-template-columns: 1fr; }
+    }
+
+    .player-section {
+      position: relative;
+      z-index: 45;
+    }
+
+    .player-header {
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .anime-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .player-controls-top { display: flex; gap: 8px; }
+
+    .btn-action {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent);
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      background: #000;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 74, 128, 0.15);
+      border: 1px solid var(--border);
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .player-bar {
+      margin-top: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .episode-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+    }
+
+    .tag.highlight {
+      background: rgba(255, 74, 128, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(255, 74, 128, 0.3);
+    }
+
+    .anime-card {
+      margin-top: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .anime-desc {
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .card-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+    }
+
+    .card-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .input-field {
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent);
+    }
+
+    .btn-submit {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 13px;
+    }
+
+    .btn-submit:hover {
+      background: var(--accent-hover);
+    }
+
+    .episodes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .episodes-list::-webkit-scrollbar { width: 4px; }
+    .episodes-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .episode-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--bg-main);
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-main);
+    }
+
+    .episode-item:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 74, 128, 0.4);
+    }
+
+    .episode-item.active {
+      background: rgba(255, 74, 128, 0.1);
+      border-color: var(--accent);
+    }
+
+    .episode-num {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--accent-cyan);
+      min-width: 28px;
+    }
+
+    .episode-item.active .episode-num { color: var(--accent); }
+
+    .episode-details { flex: 1; overflow: hidden; }
+
+    .episode-name {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .episode-sub { font-size: 11px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <div id="cinema-overlay" onclick="toggleCinemaMode()"></div>
+
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <span>AniTube</span>Play
+        <span class="logo-badge">HD</span>
+      </a>
+      <div style="font-size: 13px; color: var(--text-muted);">
+        Стильный аниме-плеер для YouTube
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="player-section">
+      <div class="player-header">
+        <h1 class="anime-title" id="current-title">Загрузка...</h1>
+        <div class="player-controls-top">
+          <button class="btn-action" onclick="toggleCinemaMode()">💡 Выключить свет</button>
+        </div>
+      </div>
+
+      <!-- Встроенный плеер с фиксом referrerpolicy -->
+      <div class="video-wrapper">
+        <iframe 
+          id="main-player" 
+          src="" 
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <div class="player-bar">
+        <div class="episode-tags">
+          <span class="tag highlight">Озвучка: Дубляж / Оригинал</span>
+          <span class="tag">Качество: 1080p</span>
+          <span class="tag">Плеер: YouTube CDN</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-action" onclick="prevEpisode()">◀ Предыдущая</button>
+          <button class="btn-action" style="border-color: var(--accent); color: #fff;" onclick="nextEpisode()">Следующая ▶</button>
+        </div>
+      </div>
+
+      <div class="anime-card">
+        <div class="card-title">О ролике</div>
+        <p class="anime-desc" id="current-desc">
+          Вставьте любую ссылку на видео или Shorts справа, чтобы добавить его в плейлист.
+        </p>
+      </div>
+    </section>
+
+    <aside class="sidebar-section">
+      <div class="card">
+        <div class="card-title">Добавить YouTube ссылку</div>
+        <div class="input-group">
+          <input type="text" id="video-url-input" class="input-field" placeholder="Ссылка на YouTube..." />
+          <input type="text" id="video-title-input" class="input-field" placeholder="Название (необязательно)..." />
+          <button class="btn-submit" onclick="addCustomVideo()">+ Добавить в список</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Список серий / Роликов</div>
+        <div class="episodes-list" id="episodes-list"></div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    let playlist = [
+      {
+        id: "jfKfPfyJRdk",
+        title: "Эпизод 1: Lofi Beats (Демо)",
+        desc: "Демонстрационный ролик."
+      },
+      {
+        id: "4xDzrJKXOOY",
+        title: "Эпизод 2: Synthwave Chill",
+        desc: "Второй демонстрационный ролик."
+      }
+    ];
+
+    let currentIndex = 0;
+
+    function extractYouTubeID(url) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function loadVideo(index) {
+      if (index < 0 || index >= playlist.length) return;
+      currentIndex = index;
+      const item = playlist[currentIndex];
+
+      const player = document.getElementById("main-player");
+      // Переключаем на стандартный youtube.com
+      player.src = `https://www.youtube.com/embed/${item.id}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin || '*')}`;
+
+      document.getElementById("current-title").textContent = item.title;
+      document.getElementById("current-desc").textContent = item.desc || "Описание отсутствует.";
+
+      renderList();
+    }
+
+    function renderList() {
+      const container = document.getElementById("episodes-list");
+      container.innerHTML = "";
+
+      playlist.forEach((item, idx) => {
+        const div = document.createElement("div");
+        div.className = `episode-item ${idx === currentIndex ? "active" : ""}`;
+        div.onclick = () => loadVideo(idx);
+
+        div.innerHTML = `
+          <div class="episode-num">#${idx + 1}</div>
+          <div class="episode-details">
+            <div class="episode-name">${item.title}</div>
+            <div class="episode-sub">YouTube • HD</div>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addCustomVideo() {
+      const urlInput = document.getElementById("video-url-input");
+      const titleInput = document.getElementById("video-title-input");
+
+      const rawUrl = urlInput.value.trim();
+      if (!rawUrl) return alert("Пожалуйста, вставьте ссылку на YouTube!");
+
+      const videoId = extractYouTubeID(rawUrl) || rawUrl;
+
+      if (!videoId || videoId.length !== 11) {
+        return alert("Не удалось распознать ссылку на YouTube.");
+      }
+
+      const newTitle = titleInput.value.trim() || `Эпизод ${playlist.length + 1}`;
+
+      playlist.push({
+        id: videoId,
+        title: newTitle,
+        desc: `Ссылка: ${rawUrl}`
+      });
+
+      urlInput.value = "";
+      titleInput.value = "";
+      loadVideo(playlist.length - 1);
+    }
+
+    function nextEpisode() {
+      if (currentIndex + 1 < playlist.length) loadVideo(currentIndex + 1);
+    }
+
+    function prevEpisode() {
+      if (currentIndex - 1 >= 0) loadVideo(currentIndex - 1);
+    }
+
+    function toggleCinemaMode() {
+      document.body.classList.toggle("cinema-mode");
+    }
+
+    window.onload = () => {
+      loadVideo(0);
+    };
+  </script>
+</body>
+</html>
