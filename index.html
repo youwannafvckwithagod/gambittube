@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>GambitTube Player — Смотреть онлайн</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -230,7 +231,7 @@
       font-size: 14px;
     }
 
-    /* САЙДБАР: СПИСОК СЕРИЙ И ДОБАВЛЕНИЕ ССЫЛКИ */
+    /* САЙДБАР: СПИСОК СЕРИЙ */
     .sidebar-section {
       display: flex;
       flex-direction: column;
@@ -264,13 +265,6 @@
       border-radius: 2px;
     }
 
-    /* Добавление ссылки */
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
     .input-field {
       background: var(--bg-main);
       border: 1px solid var(--border);
@@ -284,22 +278,6 @@
 
     .input-field:focus {
       border-color: var(--accent);
-    }
-
-    .btn-submit {
-      background: var(--accent);
-      border: none;
-      color: #fff;
-      font-weight: 700;
-      padding: 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-size: 13px;
-    }
-
-    .btn-submit:hover {
-      background: var(--accent-hover);
     }
 
     /* Список серий (эпизодов) */
@@ -410,6 +388,7 @@
         <iframe 
           id="main-player" 
           src="" 
+          referrerpolicy="strict-origin-when-cross-origin"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
           allowfullscreen>
         </iframe>
@@ -432,7 +411,7 @@
       <div class="anime-card">
         <div class="card-title">О ролике</div>
         <p class="anime-desc" id="current-desc">
-          Эпичные разборки кланов. Вставьте любую свою ссылку на YouTube в форму справа, чтобы добавить новый ролик в список серий!
+          Эпичные разборки кланов.
         </p>
       </div>
     </section>
@@ -440,18 +419,13 @@
     <!-- Боковая панель -->
     <aside class="sidebar-section">
       
-      <!-- Форма добавления ролика -->
+      <!-- Список плейлистов и серий -->
       <div class="card">
-        <div class="card-title">Добавить Своё Говно</div>
-        <div class="input-group">
-          <input type="text" id="video-url-input" class="input-field" placeholder="Ссылка на YouTube (watch, youtu.be, shorts)..." />
-          <input type="text" id="video-title-input" class="input-field" placeholder="Название эпизода (необязательно)..." />
-          <button class="btn-submit" onclick="addCustomVideo()">+ Добавить говнище</button>
-        </div>
-      </div>
+        <div class="card-title">Выберите Сериал / Плейлист</div>
+        <select id="playlist-select" class="input-field" style="width: 100%; margin-bottom: 16px; cursor: pointer;" onchange="switchPlaylist(this.value)">
+          <!-- Опции генерируются через JS -->
+        </select>
 
-      <!-- Список серий -->
-      <div class="card">
         <div class="card-title">Список серий</div>
         <div class="episodes-list" id="episodes-list">
           <!-- Генерируется через JS -->
@@ -463,42 +437,76 @@
   </main>
 
   <script>
-    // Начальный плейлист
-    let playlist = [
+    // СПИСОК ПЛЕЙЛИСТОВ И СЕРИАЛОВ (Сюда вы можете добавлять новые плейлисты и серии)
+    const playlists = [
       {
-        id: "nqpT9yrsZ6A",
-        title: "Эпизод 1: Я и есть опасность!",
-        desc: "Раздор Парагона и Mini Boss Дианочки. От отчаяния Парагон решает зайти на первый сервер и расширить своё влияние."
+        name: "Во Все Флажкие (1 Сезон)",
+        videos: [
+          {
+            id: "nqpT9yrsZ6A",
+            title: "Эпизод 1: Я и есть опасность!",
+            desc: "Раздор Парагона и Mini Boss Дианочки. От отчаяния Парагон решает зайти на первый сервер и расширить своё влияние."
+          },
+          {
+            id: "1ECf306j51U",
+            title: "Эпизод 2: Встреча Двух Серверов",
+            desc: "Переговоры сильнейших кланов первого и второго сервера. Парагон запугивает лидера клана hotel breakfast."
+          },
+          {
+            id: "B65cKXKD1N8",
+            title: "Эпизод 3: Это - не мет!",
+            desc: "Парагон решает разобраться с негодником из Los Gambitos, который зафрикилил его подсоса."
+          }
+        ]
       },
       {
-        id: "1ECf306j51U",
-        title: "Эпизод 2: Встреча Двух Серверов",
-        desc: "Переговоры сильнейших кланов первого и второго сервера. Парагон запугивает лидера клана hotel breakfast."
-      },
-      {
-        id: "B65cKXKD1N8",
-        title: "Эпизод 3: Это - не мет!",
-        desc: "Парагон решает разобраться с негодником из Los Gambitos, который зафрикилил его подсоса."
+        name: "Гамбитские Войны (1 Сезон)",
+        videos: [
+          {
+            id: "SieNjXZGlhw",
+            title: "Эпизод 1: Атака Неира",
+            desc: "Неир и его тиммейты решаются на отважный шаг: уличить темного Императора Парагона в читерстве, а так же забанить его. Казалось бы, прибывший на помощь Лекси состоит в решетках, что может пойти не так?"
+          },
+          {
+            id: "6SYGv7Ey4S0",
+            title: "Эпизод 2: Месть Лекси",
+            desc: "Лекси получает пермач на гамбите из-за кидания запреток на стриме Чешира, разъярённый, он выходит из клана #, и под влиянием Императора Парагона решается на это..."
+          }
+        ]
       }
     ];
 
-    let currentIndex = 0;
+    let currentPlaylistIndex = 0;
+    let currentVideoIndex = 0;
 
-    // Извлечение YouTube Video ID из любой ссылки
-    function extractYouTubeID(url) {
-      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-      const match = url.match(regExp);
-      return (match && match[2].length === 11) ? match[2] : null;
+    // Инициализация выпадающего списка плейлистов
+    function renderPlaylistSelect() {
+      const select = document.getElementById("playlist-select");
+      select.innerHTML = "";
+      playlists.forEach((pl, idx) => {
+        const opt = document.createElement("option");
+        opt.value = idx;
+        opt.textContent = pl.name;
+        select.appendChild(opt);
+      });
+    }
+
+    // Переключение плейлиста
+    function switchPlaylist(idx) {
+      currentPlaylistIndex = parseInt(idx, 10);
+      loadVideo(0);
     }
 
     // Загрузка видео в плеер
     function loadVideo(index) {
-      if (index < 0 || index >= playlist.length) return;
-      currentIndex = index;
-      const item = playlist[currentIndex];
+      const activeVideos = playlists[currentPlaylistIndex].videos;
+      if (index < 0 || index >= activeVideos.length) return;
+      
+      currentVideoIndex = index;
+      const item = activeVideos[currentVideoIndex];
 
       const player = document.getElementById("main-player");
-      player.src = `https://www.youtube-nocookie.com/embed/${item.id}?autoplay=1&rel=0`;
+      player.src = `https://www.youtube.com/embed/${item.id}?autoplay=1&rel=0`;
 
       document.getElementById("current-title").textContent = item.title;
       document.getElementById("current-desc").textContent = item.desc || "Описание отсутствует.";
@@ -506,14 +514,15 @@
       renderList();
     }
 
-    // Отрисовка списка серий
+    // Отрисовка списка серий активного плейлиста
     function renderList() {
       const container = document.getElementById("episodes-list");
       container.innerHTML = "";
+      const activeVideos = playlists[currentPlaylistIndex].videos;
 
-      playlist.forEach((item, idx) => {
+      activeVideos.forEach((item, idx) => {
         const div = document.createElement("div");
-        div.className = `episode-item ${idx === currentIndex ? "active" : ""}`;
+        div.className = `episode-item ${idx === currentVideoIndex ? "active" : ""}`;
         div.onclick = () => loadVideo(idx);
 
         div.innerHTML = `
@@ -527,47 +536,19 @@
       });
     }
 
-    // Добавить свое видео по ссылке
-    function addCustomVideo() {
-      const urlInput = document.getElementById("video-url-input");
-      const titleInput = document.getElementById("video-title-input");
-
-      const rawUrl = urlInput.value.trim();
-      if (!rawUrl) return alert("Пожалуйста, вставьте ссылку на YouTube!");
-
-      const videoId = extractYouTubeID(rawUrl) || rawUrl; // если сразу ввели ID
-
-      if (!videoId || videoId.length !== 11) {
-        return alert("Не удалось распознать ссылку на YouTube. Проверьте правильность URL.");
-      }
-
-      const newTitle = titleInput.value.trim() || `Эпизод ${playlist.length + 1}`;
-
-      playlist.push({
-        id: videoId,
-        title: newTitle,
-        desc: `Пользовательское видео: ${rawUrl}`
-      });
-
-      urlInput.value = "";
-      titleInput.value = "";
-
-      // Переключаемся на только что добавленное видео
-      loadVideo(playlist.length - 1);
-    }
-
     // Навигация
     function nextEpisode() {
-      if (currentIndex + 1 < playlist.length) {
-        loadVideo(currentIndex + 1);
+      const activeVideos = playlists[currentPlaylistIndex].videos;
+      if (currentVideoIndex + 1 < activeVideos.length) {
+        loadVideo(currentVideoIndex + 1);
       } else {
-        alert("Это последний ролик в списке!");
+        alert("Это последний ролик в этом плейлисте!");
       }
     }
 
     function prevEpisode() {
-      if (currentIndex - 1 >= 0) {
-        loadVideo(currentIndex - 1);
+      if (currentVideoIndex - 1 >= 0) {
+        loadVideo(currentVideoIndex - 1);
       }
     }
 
@@ -578,6 +559,7 @@
 
     // Инициализация при загрузке
     window.onload = () => {
+      renderPlaylistSelect();
       loadVideo(0);
     };
   </script>
