@@ -3,10 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Фикс ошибки 153: корректная передача Referrer -->
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>AniTube Player — Смотреть онлайн</title>
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -16,7 +13,7 @@
       --bg-main: #0b0e14;
       --bg-card: #151922;
       --bg-card-hover: #1e2430;
-      --accent: #ff4a80;
+      --accent: #ff4a80; /* Неоново-розовый */
       --accent-hover: #ff2d6b;
       --accent-cyan: #00d2ff;
       --text-main: #e2e8f0;
@@ -25,7 +22,11 @@
       --radius: 12px;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: 'Nunito', sans-serif;
@@ -35,6 +36,7 @@
       overflow-x: hidden;
     }
 
+    /* Подложка "выключить свет" */
     #cinema-overlay {
       position: fixed;
       inset: 0;
@@ -49,6 +51,7 @@
       pointer-events: auto;
     }
 
+    /* ШАПКА */
     header {
       background: rgba(21, 25, 34, 0.85);
       backdrop-filter: blur(12px);
@@ -95,6 +98,7 @@
       -webkit-text-fill-color: initial;
     }
 
+    /* ОСНОВНОЙ КОНТЕНТ */
     .container {
       max-width: 1300px;
       margin: 24px auto;
@@ -105,12 +109,15 @@
     }
 
     @media (max-width: 1024px) {
-      .container { grid-template-columns: 1fr; }
+      .container {
+        grid-template-columns: 1fr;
+      }
     }
 
+    /* ПЛЕЕР */
     .player-section {
       position: relative;
-      z-index: 45;
+      z-index: 45; /* выше cinema overlay */
     }
 
     .player-header {
@@ -129,7 +136,10 @@
       color: #fff;
     }
 
-    .player-controls-top { display: flex; gap: 8px; }
+    .player-controls-top {
+      display: flex;
+      gap: 8px;
+    }
 
     .btn-action {
       background: var(--bg-card);
@@ -154,7 +164,7 @@
     .video-wrapper {
       position: relative;
       width: 100%;
-      padding-top: 56.25%;
+      padding-top: 56.25%; /* 16:9 Aspect Ratio */
       background: #000;
       border-radius: var(--radius);
       overflow: hidden;
@@ -171,6 +181,7 @@
       border: none;
     }
 
+    /* ПАНЕЛЬ УПРАВЛЕНИЯ ПЛЕЕРОМ */
     .player-bar {
       margin-top: 14px;
       background: var(--bg-card);
@@ -204,6 +215,7 @@
       border: 1px solid rgba(255, 74, 128, 0.3);
     }
 
+    /* ИНФО О ВИДЕО / РЕЛИЗЕ */
     .anime-card {
       margin-top: 20px;
       background: var(--bg-card);
@@ -218,6 +230,7 @@
       font-size: 14px;
     }
 
+    /* САЙДБАР: СПИСОК СЕРИЙ И ДОБАВЛЕНИЕ ССЫЛКИ */
     .sidebar-section {
       display: flex;
       flex-direction: column;
@@ -251,6 +264,7 @@
       border-radius: 2px;
     }
 
+    /* Добавление ссылки */
     .input-group {
       display: flex;
       flex-direction: column;
@@ -288,6 +302,7 @@
       background: var(--accent-hover);
     }
 
+    /* Список серий (эпизодов) */
     .episodes-list {
       display: flex;
       flex-direction: column;
@@ -297,7 +312,9 @@
       padding-right: 4px;
     }
 
-    .episodes-list::-webkit-scrollbar { width: 4px; }
+    .episodes-list::-webkit-scrollbar {
+      width: 4px;
+    }
     .episodes-list::-webkit-scrollbar-thumb {
       background: var(--border);
       border-radius: 4px;
@@ -313,6 +330,7 @@
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
+      text-decoration: none;
       color: var(--text-main);
     }
 
@@ -334,9 +352,14 @@
       min-width: 28px;
     }
 
-    .episode-item.active .episode-num { color: var(--accent); }
+    .episode-item.active .episode-num {
+      color: var(--accent);
+    }
 
-    .episode-details { flex: 1; overflow: hidden; }
+    .episode-details {
+      flex: 1;
+      overflow: hidden;
+    }
 
     .episode-name {
       font-size: 13px;
@@ -346,13 +369,18 @@
       text-overflow: ellipsis;
     }
 
-    .episode-sub { font-size: 11px; color: var(--text-muted); }
+    .episode-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body>
 
+  <!-- Фон затемнения при клике "Выключить свет" -->
   <div id="cinema-overlay" onclick="toggleCinemaMode()"></div>
 
+  <!-- Шапка -->
   <header>
     <div class="nav-container">
       <a href="#" class="logo">
@@ -365,31 +393,34 @@
     </div>
   </header>
 
+  <!-- Основная часть -->
   <main class="container">
+    
+    <!-- Секция плеера -->
     <section class="player-section">
       <div class="player-header">
-        <h1 class="anime-title" id="current-title">Загрузка...</h1>
+        <h1 class="anime-title" id="current-title">Breaking Bad x Gambit RP — Эпизод 1</h1>
         <div class="player-controls-top">
           <button class="btn-action" onclick="toggleCinemaMode()">💡 Выключить свет</button>
         </div>
       </div>
 
-      <!-- Встроенный плеер с фиксом referrerpolicy -->
+      <!-- Встраиваемый плеер YouTube -->
       <div class="video-wrapper">
         <iframe 
           id="main-player" 
           src="" 
-          referrerpolicy="strict-origin-when-cross-origin"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
           allowfullscreen>
         </iframe>
       </div>
 
+      <!-- Панель тегов и кнопок под плеером -->
       <div class="player-bar">
         <div class="episode-tags">
-          <span class="tag highlight">Озвучка: Дубляж / Оригинал</span>
+          <span class="tag highlight">Озвучка: Дубляж / Мемная</span>
           <span class="tag">Качество: 1080p</span>
-          <span class="tag">Плеер: YouTube CDN</span>
+          <span class="tag">Сервер: Основной</span>
         </div>
         <div style="display: flex; gap: 8px;">
           <button class="btn-action" onclick="prevEpisode()">◀ Предыдущая</button>
@@ -397,61 +428,72 @@
         </div>
       </div>
 
+      <!-- Описание тайтла -->
       <div class="anime-card">
         <div class="card-title">О ролике</div>
         <p class="anime-desc" id="current-desc">
-          Вставьте любую ссылку на видео или Shorts справа, чтобы добавить его в плейлист.
+          Эпичные разборки кланов в пустыне. Вставьте любую свою ссылку на YouTube в форму справа, чтобы добавить новый ролик в список серий!
         </p>
       </div>
     </section>
 
+    <!-- Боковая панель -->
     <aside class="sidebar-section">
+      
+      <!-- Форма добавления ролика -->
       <div class="card">
         <div class="card-title">Добавить YouTube ссылку</div>
         <div class="input-group">
-          <input type="text" id="video-url-input" class="input-field" placeholder="Ссылка на YouTube..." />
-          <input type="text" id="video-title-input" class="input-field" placeholder="Название (необязательно)..." />
+          <input type="text" id="video-url-input" class="input-field" placeholder="Ссылка на YouTube (watch, youtu.be, shorts)..." />
+          <input type="text" id="video-title-input" class="input-field" placeholder="Название эпизода (необязательно)..." />
           <button class="btn-submit" onclick="addCustomVideo()">+ Добавить в список</button>
         </div>
       </div>
 
+      <!-- Список серий -->
       <div class="card">
         <div class="card-title">Список серий / Роликов</div>
-        <div class="episodes-list" id="episodes-list"></div>
+        <div class="episodes-list" id="episodes-list">
+          <!-- Генерируется через JS -->
+        </div>
       </div>
+
     </aside>
+
   </main>
 
   <script>
+    // Начальный плейлист
     let playlist = [
       {
-        id: "jfKfPfyJRdk",
-        title: "Эпизод 1: Lofi Beats (Демо)",
-        desc: "Демонстрационный ролик."
+        id: "jfKfPfyJRdk", // Lofi Girl (демо)
+        title: "Эпизод 1: Встреча в пустыне",
+        desc: "Переговоры двух сильнейших альянсов. Кто заберет флаги на первом сервере?"
       },
       {
-        id: "4xDzrJKXOOY",
-        title: "Эпизод 2: Synthwave Chill",
-        desc: "Второй демонстрационный ролик."
+        id: "4xDzrJKXOOY", // Synthwave chill
+        title: "Эпизод 2: Война за влияние",
+        desc: "Продолжение противостояния. В бой вступают новые стрелки."
       }
     ];
 
     let currentIndex = 0;
 
+    // Извлечение YouTube Video ID из любой ссылки
     function extractYouTubeID(url) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|\&v=)([^#\&\?]*).*/;
       const match = url.match(regExp);
       return (match && match[2].length === 11) ? match[2] : null;
     }
 
+    // Загрузка видео в плеер
     function loadVideo(index) {
       if (index < 0 || index >= playlist.length) return;
       currentIndex = index;
       const item = playlist[currentIndex];
 
       const player = document.getElementById("main-player");
-      // Переключаем на стандартный youtube.com
-      player.src = `https://www.youtube.com/embed/${item.id}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin || '*')}`;
+      player.src = `https://www.youtube-nocookie.com/embed/${item.id}?autoplay=1&rel=0`;
 
       document.getElementById("current-title").textContent = item.title;
       document.getElementById("current-desc").textContent = item.desc || "Описание отсутствует.";
@@ -459,6 +501,7 @@
       renderList();
     }
 
+    // Отрисовка списка серий
     function renderList() {
       const container = document.getElementById("episodes-list");
       container.innerHTML = "";
@@ -479,6 +522,7 @@
       });
     }
 
+    // Добавить свое видео по ссылке
     function addCustomVideo() {
       const urlInput = document.getElementById("video-url-input");
       const titleInput = document.getElementById("video-title-input");
@@ -486,10 +530,10 @@
       const rawUrl = urlInput.value.trim();
       if (!rawUrl) return alert("Пожалуйста, вставьте ссылку на YouTube!");
 
-      const videoId = extractYouTubeID(rawUrl) || rawUrl;
+      const videoId = extractYouTubeID(rawUrl) || rawUrl; // если сразу ввели ID
 
       if (!videoId || videoId.length !== 11) {
-        return alert("Не удалось распознать ссылку на YouTube.");
+        return alert("Не удалось распознать ссылку на YouTube. Проверьте правильность URL.");
       }
 
       const newTitle = titleInput.value.trim() || `Эпизод ${playlist.length + 1}`;
@@ -497,26 +541,37 @@
       playlist.push({
         id: videoId,
         title: newTitle,
-        desc: `Ссылка: ${rawUrl}`
+        desc: `Пользовательское видео: ${rawUrl}`
       });
 
       urlInput.value = "";
       titleInput.value = "";
+
+      // Переключаемся на только что добавленное видео
       loadVideo(playlist.length - 1);
     }
 
+    // Навигация
     function nextEpisode() {
-      if (currentIndex + 1 < playlist.length) loadVideo(currentIndex + 1);
+      if (currentIndex + 1 < playlist.length) {
+        loadVideo(currentIndex + 1);
+      } else {
+        alert("Это последний ролик в списке!");
+      }
     }
 
     function prevEpisode() {
-      if (currentIndex - 1 >= 0) loadVideo(currentIndex - 1);
+      if (currentIndex - 1 >= 0) {
+        loadVideo(currentIndex - 1);
+      }
     }
 
+    // Режим кинотеатра
     function toggleCinemaMode() {
       document.body.classList.toggle("cinema-mode");
     }
 
+    // Инициализация при загрузке
     window.onload = () => {
       loadVideo(0);
     };
