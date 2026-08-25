@@ -383,7 +383,7 @@
         </div>
       </div>
 
-      <!-- Встраиваемый плеер YouTube -->
+      <!-- Встраиваемый плеер -->
       <div class="video-wrapper">
         <iframe 
           id="main-player" 
@@ -437,7 +437,8 @@
   </main>
 
   <script>
-    // СПИСОК ПЛЕЙЛИСТОВ И СЕРИАЛОВ (Сюда вы можете добавлять новые плейлисты и серии)
+    // СПИСОК ПЛЕЙЛИСТОВ И СЕРИАЛОВ
+    // Сюда можно добавлять как ID/ссылки YouTube, так и полные ссылки на Google Drive
     const playlists = [
       {
         name: "Во Все Флажкие (1 Сезон)",
@@ -478,11 +479,46 @@
             desc: "Лекси получает пермач на гамбите из-за кидания запреток на стриме Чешира, разъярённый, он выходит из клана #, и под влиянием Императора Парагона решается на это..."
           }
         ]
+      },
+      {
+        name: "Гамбитский Гуль (1 Сезон)",
+        videos: [
+          {
+            id: "https://drive.google.com/file/d/1IXXbftVZYaRbRF9o8ZNBICB-2KRI-IUk/view?usp=sharing",
+            title: "Эпизод 1: Я... Совет Клановец",
+            desc: "Mini Boss Дианочка оказывается не той, за кого себя выдаёт..."
+          }
+        ]
       }
     ];
 
     let currentPlaylistIndex = 0;
     let currentVideoIndex = 0;
+
+    // Универсальная функция получения ссылки для плеера (YouTube / Google Drive)
+    function getEmbedUrl(source) {
+      if (!source) return "";
+      
+      // Обработка ссылок Google Drive
+      if (source.includes("drive.google.com")) {
+        const driveMatch = source.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || source.match(/id=([a-zA-Z0-9_-]+)/);
+        if (driveMatch && driveMatch[1]) {
+          return `https://drive.google.com/file/d/${driveMatch[1]}/preview`;
+        }
+        return source;
+      }
+
+      // Обработка ссылок или чистого ID с YouTube
+      let ytId = source;
+      if (source.includes("youtube.com") || source.includes("youtu.be")) {
+        const ytMatch = source.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([a-zA-Z0-9_-]{11})/);
+        if (ytMatch && ytMatch[1]) {
+          ytId = ytMatch[1];
+        }
+      }
+
+      return `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
+    }
 
     // Инициализация выпадающего списка плейлистов
     function renderPlaylistSelect() {
@@ -511,7 +547,7 @@
       const item = activeVideos[currentVideoIndex];
 
       const player = document.getElementById("main-player");
-      player.src = `https://www.youtube.com/embed/${item.id}?autoplay=1&rel=0`;
+      player.src = getEmbedUrl(item.id);
 
       document.getElementById("current-title").textContent = item.title;
       document.getElementById("current-desc").textContent = item.desc || "Описание отсутствует.";
@@ -526,6 +562,9 @@
       const activeVideos = playlists[currentPlaylistIndex].videos;
 
       activeVideos.forEach((item, idx) => {
+        const isDrive = (item.id || "").includes("drive.google.com");
+        const sourcePlatform = isDrive ? "Google Drive" : "YouTube";
+
         const div = document.createElement("div");
         div.className = `episode-item ${idx === currentVideoIndex ? "active" : ""}`;
         div.onclick = () => loadVideo(idx);
@@ -534,7 +573,7 @@
           <div class="episode-num">#${idx + 1}</div>
           <div class="episode-details">
             <div class="episode-name">${item.title}</div>
-            <div class="episode-sub">YouTube • HD</div>
+            <div class="episode-sub">${sourcePlatform} • HD</div>
           </div>
         `;
         container.appendChild(div);
