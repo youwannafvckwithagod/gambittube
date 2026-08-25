@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AniTube Player — Смотреть онлайн</title>
+  <title>GambitTube Player — Смотреть онлайн</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
       --bg-main: #0b0e14;
       --bg-card: #151922;
       --bg-card-hover: #1e2430;
-      --accent: #ff4a80; /* Неоново-розовый */
+      --accent: #ff4a80;
       --accent-hover: #ff2d6b;
       --accent-cyan: #00d2ff;
       --text-main: #e2e8f0;
@@ -384,11 +384,11 @@
   <header>
     <div class="nav-container">
       <a href="#" class="logo">
-        <span>AniTube</span>Play
+        <span>GambitTube</span>Play
         <span class="logo-badge">HD</span>
       </a>
       <div style="font-size: 13px; color: var(--text-muted);">
-        Стильный аниме-плеер для YouTube
+        Лучшие озвучки про Gambit от AniLarp!
       </div>
     </div>
   </header>
@@ -399,9 +399,9 @@
     <!-- Секция плеера -->
     <section class="player-section">
       <div class="player-header">
-        <h1 class="anime-title" id="current-title">Breaking Bad x Gambit RP — Эпизод 1</h1>
+        <h1 class="anime-title" id="current-title">Gambit RP</h1>
         <div class="player-controls-top">
-          <button class="btn-action" onclick="toggleCinemaMode()">💡 Выключить свет</button>
+          <button class="btn-action" onclick="toggleCinemaMode()">💡 Понегреть</button>
         </div>
       </div>
 
@@ -418,9 +418,9 @@
       <!-- Панель тегов и кнопок под плеером -->
       <div class="player-bar">
         <div class="episode-tags">
-          <span class="tag highlight">Озвучка: Дубляж / Мемная</span>
-          <span class="tag">Качество: 1080p</span>
-          <span class="tag">Сервер: Основной</span>
+          <span class="tag highlight">Озвучка: Дубляж / Оригинал</span>
+          <span class="tag">Качество: 8K Ultra HD</span>
+          <span class="tag">Сервер: GambitRP Garry's Mod</span>
         </div>
         <div style="display: flex; gap: 8px;">
           <button class="btn-action" onclick="prevEpisode()">◀ Предыдущая</button>
@@ -432,7 +432,7 @@
       <div class="anime-card">
         <div class="card-title">О ролике</div>
         <p class="anime-desc" id="current-desc">
-          Эпичные разборки кланов в пустыне. Вставьте любую свою ссылку на YouTube в форму справа, чтобы добавить новый ролик в список серий!
+          Эпичные разборки кланов. Вставьте любую свою ссылку на YouTube в форму справа, чтобы добавить новый ролик в список серий!
         </p>
       </div>
     </section>
@@ -442,17 +442,17 @@
       
       <!-- Форма добавления ролика -->
       <div class="card">
-        <div class="card-title">Добавить YouTube ссылку</div>
+        <div class="card-title">Добавить Своё Говно</div>
         <div class="input-group">
           <input type="text" id="video-url-input" class="input-field" placeholder="Ссылка на YouTube (watch, youtu.be, shorts)..." />
           <input type="text" id="video-title-input" class="input-field" placeholder="Название эпизода (необязательно)..." />
-          <button class="btn-submit" onclick="addCustomVideo()">+ Добавить в список</button>
+          <button class="btn-submit" onclick="addCustomVideo()">+ Добавить говнище</button>
         </div>
       </div>
 
       <!-- Список серий -->
       <div class="card">
-        <div class="card-title">Список серий / Роликов</div>
+        <div class="card-title">Список серий</div>
         <div class="episodes-list" id="episodes-list">
           <!-- Генерируется через JS -->
         </div>
